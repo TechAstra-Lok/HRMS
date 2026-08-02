@@ -23,7 +23,7 @@ class Settings:
     APP_DEBUG = os.getenv('APP_DEBUG', 'True').lower() == 'true'
     APP_URL = os.getenv('APP_URL', 'http://localhost:5000')
     SECRET_KEY = os.getenv('SECRET_KEY') or secrets.token_urlsafe(32)
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://localhost:5432/hrms')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or os.getenv('SQLALCHEMY_DATABASE_URI') or 'sqlite:///./local_hrms.db'
     SQLALCHEMY_POOL_SIZE = int(os.getenv('SQLALCHEMY_POOL_SIZE', '20'))
     SQLALCHEMY_MAX_OVERFLOW = int(os.getenv('SQLALCHEMY_MAX_OVERFLOW', '10'))
     SQLALCHEMY_POOL_TIMEOUT = int(os.getenv('SQLALCHEMY_POOL_TIMEOUT', '30'))
@@ -38,6 +38,7 @@ class Settings:
     JWT_ACCESS_TOKEN_EXPIRES = _parse_token_timedelta('JWT_ACCESS_TOKEN_EXPIRES', 'JWT_ACCESS_TOKEN_EXPIRE_MINUTES', 60)
     JWT_REFRESH_TOKEN_EXPIRES = _parse_token_timedelta('JWT_REFRESH_TOKEN_EXPIRES', 'JWT_REFRESH_TOKEN_EXPIRE_DAYS', 86400)
     JWT_COOKIE_SECURE = os.getenv('JWT_COOKIE_SECURE', 'False') == 'True'
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     CSRF_TOKEN = os.getenv('CSRF_TOKEN') or secrets.token_urlsafe(32)
     SESSION_IDLE_TIMEOUT_SECONDS = int(os.getenv('SESSION_IDLE_TIMEOUT_SECONDS', '1800'))
     ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY') or secrets.token_urlsafe(32)

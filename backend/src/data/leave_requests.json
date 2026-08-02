@@ -1,0 +1,5 @@
+{
+  "leave_requests": [
+    {"id": "leave-001", "employee_id": "emp-001", "status": "pending", "start_date": "2026-08-10", "end_date": "2026-08-12", "tenant_id": "demo-tenant"}
+  ]
+}

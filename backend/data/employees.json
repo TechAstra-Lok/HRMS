@@ -1,0 +1,37 @@
+{
+  "employees": [
+    {
+      "id": "emp-001",
+      "first_name": "Asha",
+      "last_name": "Patel",
+      "email": "asha@hrms.local",
+      "department": "Engineering",
+      "designation": "Engineer",
+      "phone": "+1-555-0101",
+      "employee_id": "EMP001",
+      "tenant_id": "demo-tenant"
+    },
+    {
+      "id": "emp-002",
+      "first_name": "Mina",
+      "last_name": "Chen",
+      "email": "mina@hrms.local",
+      "department": "HR",
+      "designation": "HR Manager",
+      "phone": "+1-555-0102",
+      "employee_id": "EMP002",
+      "tenant_id": "demo-tenant"
+    },
+    {
+      "id": "emp-003",
+      "first_name": "Derek",
+      "last_name": "Morris",
+      "email": "derek@hrms.local",
+      "department": "Finance",
+      "designation": "Analyst",
+      "phone": "+1-555-0103",
+      "employee_id": "EMP003",
+      "tenant_id": "demo-tenant"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "attendances": [
+    {"id": "att-001", "employee_id": "emp-001", "date": "2026-08-02", "check_in": "2026-08-02T08:45:00Z", "status": "present", "tenant_id": "demo-tenant"},
+    {"id": "att-002", "employee_id": "emp-002", "date": "2026-08-02", "check_in": "2026-08-02T08:50:00Z", "status": "present", "tenant_id": "demo-tenant"}
+  ]
+}

@@ -1,17 +1,483 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#07111f" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="description" content="Enterprise HRMS - Complete Human Resource Management System" />
+    
     <title>Enterprise HRMS</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/js/app.js"></script>
-  </body>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    
+    <!-- Font Awesome 6 (Pro-like) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/dark-mode.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+    <div id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 40 40" class="logo-icon">
+                        <rect x="2" y="2" width="36" height="36" rx="8" fill="#4F46E5" />
+                        <path d="M12 12h16v4H12v-4zm0 8h10v4H12v-4zm0 8h16v4H12v-4z" fill="white" />
+                        <circle cx="30" cy="10" r="4" fill="#818CF8" />
+                    </svg>
+                    <span class="brand-name">HRMS</span>
+                    <span class="brand-version">v3.0</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-label">Main</span>
+                    <a href="#" class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                        <span class="nav-badge">Live</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="employees">
+                        <i class="fas fa-users"></i>
+                        <span>Employees</span>
+                        <span class="nav-badge">+12</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="attendance">
+                        <i class="fas fa-clock"></i>
+                        <span>Attendance</span>
+                        <span class="nav-badge warning">3</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="payroll">
+                        <i class="fas fa-wallet"></i>
+                        <span>Payroll</span>
+                        <span class="nav-badge success">Paid</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="leaves">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Leaves</span>
+                        <span class="nav-badge danger">5</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-label">Management</span>
+                    <a href="#" class="nav-item" data-page="recruitment">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Recruitment</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="performance">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Performance</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="reports">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="#" class="nav-item" data-page="analytics">
+                        <i class="fas fa-robot"></i>
+                        <span>AI Analytics</span>
+                        <span class="nav-badge primary">New</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-label">System</span>
+                    <a href="#" class="nav-item" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                    <a href="#" class="nav-item" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=4F46E5&color=fff&size=80" alt="Admin" />
+                        <span class="online-status"></span>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">Super Admin</span>
+                    </div>
+                    <button class="user-settings" id="userSettingsBtn">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item">Home</span>
+                        <i class="fas fa-chevron-right breadcrumb-sep"></i>
+                        <span class="breadcrumb-item active" id="pageTitle">Dashboard</span>
+                    </div>
+                </div>
+                
+                <div class="topbar-center">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search employees, departments..." id="globalSearch" />
+                        <kbd>⌘K</kbd>
+                    </div>
+                </div>
+                
+                <div class="topbar-right">
+                    <button class="topbar-btn" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    
+                    <div class="notifications-dropdown">
+                        <button class="topbar-btn notification-btn" id="notificationBtn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-dot"></span>
+                            <span class="notification-count">6</span>
+                        </button>
+                        <div class="dropdown-panel" id="notificationPanel">
+                            <div class="panel-header">
+                                <h4>Notifications</h4>
+                                <button class="panel-action">Mark all read</button>
+                            </div>
+                            <div class="panel-body">
+                                <div class="notification-item unread">
+                                    <div class="notification-icon primary">
+                                        <i class="fas fa-user-plus"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>New employee</strong> John Doe joined</p>
+                                        <span class="notification-time">2 min ago</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item unread">
+                                    <div class="notification-icon success">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>Leave approved</strong> for Sarah Chen</p>
+                                        <span class="notification-time">15 min ago</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon warning">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>Attendance alert</strong> 3 employees late</p>
+                                        <span class="notification-time">1 hour ago</span>
+                                    </div>
+                                </div>
+                                <div class="notification-item">
+                                    <div class="notification-icon danger">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="notification-content">
+                                        <p><strong>Payroll deadline</strong> approaching</p>
+                                        <span class="notification-time">3 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <button class="btn btn-text">View all notifications</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-profile-top">
+                        <img src="https://ui-avatars.com/api/?name=Admin+User&background=4F46E5&color=fff&size=40" alt="Admin" />
+                        <div class="user-info">
+                            <span class="user-name">Admin User</span>
+                            <span class="user-role">Super Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Pages Container -->
+            <div class="pages-container">
+                <!-- ===== DASHBOARD PAGE ===== -->
+                <section id="page-dashboard" class="page active">
+                    <div class="page-header">
+                        <div>
+                            <h2>Good Morning, Admin 👋</h2>
+                            <p class="page-subtitle">Here's what's happening with your HRMS today</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-outline" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-primary" onclick="exportReport()">
+                                <i class="fas fa-file-export"></i> Export Report
+                            </button>
+                            <button class="btn btn-success" onclick="showAddEmployee()">
+                                <i class="fas fa-plus"></i> Add Employee
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="stats-grid" id="dashboardStats">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statEmployees">1,284</h3>
+                                <p>Total Employees</p>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i> 12.5%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statAttendance">876</h3>
+                                <p>Today's Attendance</p>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i> 8.2%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statLeaves">24</h3>
+                                <p>Pending Leaves</p>
+                                <span class="stat-trend negative">
+                                    <i class="fas fa-arrow-down"></i> 3.1%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statPayroll">$284.5K</h3>
+                                <p>Monthly Payroll</p>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i> 5.8%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon pink">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statNewHires">18</h3>
+                                <p>New Hires</p>
+                                <span class="stat-trend positive">
+                                    <i class="fas fa-arrow-up"></i> 23%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon teal">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="statTurnover">4.2%</h3>
+                                <p>Turnover Rate</p>
+                                <span class="stat-trend negative">
+                                    <i class="fas fa-arrow-down"></i> 0.8%
+                                </span>
+                            </div>
+                            <div class="stat-chart mini-chart" data-type="sparkline"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Row -->
+                    <div class="charts-row">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <h4>Attendance Overview</h4>
+                                <div class="chart-controls">
+                                    <select id="attendancePeriod" class="chart-select">
+                                        <option value="7d">Last 7 Days</option>
+                                        <option value="30d" selected>Last 30 Days</option>
+                                        <option value="90d">Last 90 Days</option>
+                                    </select>
+                                    <button class="chart-action" onclick="toggleChartType()">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="attendanceChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <h4>Department Distribution</h4>
+                                <div class="chart-controls">
+                                    <button class="chart-action" onclick="toggleDonutView()">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="departmentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 3D Visualization + Activity -->
+                    <div class="charts-row">
+                        <div class="chart-card full-width">
+                            <div class="chart-card-header">
+                                <h4><i class="fas fa-cube"></i> 3D Workforce Visualization</h4>
+                                <div class="chart-controls">
+                                    <button class="chart-action" onclick="toggle3DView()">
+                                        <i class="fas fa-expand"></i>
+                                    </button>
+                                    <button class="chart-action" onclick="reset3DView()">
+                                        <i class="fas fa-home"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-body" style="height:400px;padding:0;">
+                                <div id="threeContainer" class="three-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Activity Feed -->
+                    <div class="charts-row">
+                        <div class="chart-card full-width">
+                            <div class="chart-card-header">
+                                <h4><i class="fas fa-stream"></i> Recent Activity</h4>
+                                <div class="chart-controls">
+                                    <button class="chart-action" onclick="viewAllActivities()">
+                                        <span>View All</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <div class="activity-feed" id="recentActivities">
+                                    <div class="activity-item">
+                                        <div class="activity-avatar primary">
+                                            <i class="fas fa-user-plus"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p><strong>New employee</strong> Michael Scott joined the Sales team</p>
+                                            <span class="activity-time">2 minutes ago</span>
+                                        </div>
+                                        <span class="activity-badge">New</span>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-avatar success">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p><strong>Leave request</strong> approved for Dwight Schrute</p>
+                                            <span class="activity-time">15 minutes ago</span>
+                                        </div>
+                                        <span class="activity-badge">Approved</span>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-avatar warning">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p><strong>3 employees</strong> marked late for today's shift</p>
+                                            <span class="activity-time">1 hour ago</span>
+                                        </div>
+                                        <span class="activity-badge">Alert</span>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-avatar danger">
+                                            <i class="fas fa-exclamation"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p><strong>Payroll</strong> for December is ready for review</p>
+                                            <span class="activity-time">2 hours ago</span>
+                                        </div>
+                                        <span class="activity-badge">Action</span>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-avatar info">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p><strong>Top performer</strong> Sarah Chen exceeded quarterly targets</p>
+                                            <span class="activity-time">4 hours ago</span>
+                                        </div>
+                                        <span class="activity-badge">Achievement</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Modal Title</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                Modal content goes here
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modalConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Custom Scripts -->
+    <script src="js/components.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/3d.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/app.js"></script>
+</body>
 </html>

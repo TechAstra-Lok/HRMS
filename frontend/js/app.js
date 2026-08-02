@@ -1,93 +1,159 @@
-import { Layout } from './components/common/Layout.js';
-import { initRouter } from './routes.js';
-import { protect, sanitize } from './security/protection.js';
-import { isAuthenticated, logout, getCurrentUser } from './api/auth.js';
-import './config.js';
+// ========================================
+// MAIN APPLICATION
+// ========================================
 
-const navItems = [
-  { title: 'Dashboard', route: 'dashboard' },
-  { title: 'Employees', route: 'employees' },
-  { title: 'Attendance', route: 'attendance' },
-  { title: 'Payroll', route: 'payroll' },
-  { title: 'Recruitment', route: 'recruitment' },
-  { title: 'Performance', route: 'performance' },
-  { title: 'Reports', route: 'reports' },
-  { title: 'Settings', route: 'settings' }
-];
+class App {
+    constructor() {
+        this.init();
+    }
 
-function buildNav(navElement) {
-  if (!isAuthenticated()) {
-    navElement.innerHTML = '';
-    navElement.style.display = 'none';
-    return;
-  }
+    init() {
+        console.log('🚀 Enterprise HRMS v3.0 initialized');
+        this.setupGlobalEventListeners();
+        this.setupKeyboardShortcuts();
+        this.setupSearch();
+        this.loadUserData();
+        this.startAutoRefresh();
+    }
 
-  navElement.style.display = 'flex';
-  const currentHash = window.location.hash.replace('#', '') || 'dashboard';
-  navElement.innerHTML = navItems
-    .map(
-      (item) => `
-        <button class="${item.route === currentHash ? 'active' : ''}" data-route="${item.route}">
-          ${sanitize(item.title)}
-        </button>`
-    )
-    .join('');
+    setupGlobalEventListeners() {
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.onPageVisible();
+            }
+        });
 
-  navElement.querySelectorAll('button').forEach((button) => {
-    button.addEventListener('click', () => {
-      navElement.querySelectorAll('button').forEach((b) => b.classList.remove('active'));
-      button.classList.add('active');
-      window.location.hash = button.dataset.route;
-      initRouter(document.getElementById('page'));
-    });
-  });
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            showToast('Back online!', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            showToast('You are offline. Some features may not work.', 'warning');
+        });
+
+        // Handle errors
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+            if (e.error && !e.error.isTrusted) {
+                showToast('An unexpected error occurred. Please try again.', 'error');
+            }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Unhandled rejection:', e.reason);
+            showToast('An unexpected error occurred. Please try again.', 'error');
+        });
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Alt+1-9 for navigation
+            if (e.altKey && e.key >= '1' && e.key <= '9') {
+                e.preventDefault();
+                const pages = ['dashboard', 'employees', 'attendance', 'payroll', 'leaves', 'recruitment', 'performance', 'reports', 'settings'];
+                const index = parseInt(e.key) - 1;
+                if (pages[index]) {
+                    navigateTo(pages[index]);
+                }
+            }
+
+            // Ctrl+Shift+D for dark mode toggle
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                e.preventDefault();
+                themeManager.toggle();
+            }
+
+            // Ctrl+Shift+R for refresh
+            if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+                e.preventDefault();
+                refreshDashboard();
+            }
+        });
+    }
+
+    setupSearch() {
+        const searchInput = document.getElementById('globalSearch');
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                if (query.length > 2) {
+                    searchTimeout = setTimeout(() => {
+                        this.performSearch(query);
+                    }, 500);
+                }
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.performSearch(searchInput.value.trim());
+                }
+            });
+        }
+    }
+
+    performSearch(query) {
+        if (!query) return;
+        showToast(`Searching for: "${query}"`, 'info');
+        // Implement search logic here
+    }
+
+    loadUserData() {
+        // Simulate loading user data
+        const user = {
+            name: 'Admin User',
+            role: 'Super Admin',
+            avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=4F46E5&color=fff&size=80'
+        };
+
+        // Update UI with user data
+        document.querySelectorAll('.user-name').forEach(el => {
+            el.textContent = user.name;
+        });
+        document.querySelectorAll('.user-role').forEach(el => {
+            el.textContent = user.role;
+        });
+        document.querySelectorAll('.user-avatar img, .user-profile-top img').forEach(el => {
+            if (el.tagName === 'IMG') {
+                el.src = user.avatar;
+            }
+        });
+    }
+
+    startAutoRefresh() {
+        // Auto-refresh dashboard every 5 minutes
+        setInterval(() => {
+            const activePage = document.querySelector('.page.active');
+            if (activePage && activePage.id === 'page-dashboard') {
+                refreshDashboard();
+            }
+        }, 300000); // 5 minutes
+    }
+
+    onPageVisible() {
+        // Refresh data when page becomes visible
+        const activePage = document.querySelector('.page.active');
+        if (activePage && activePage.id === 'page-dashboard') {
+            refreshDashboard();
+        }
+    }
 }
 
-function updateHeader(headerElement) {
-  const user = getCurrentUser();
-  if (!user) {
-    headerElement.innerHTML = `
-      <div class="header-actions__item">
-        <button class="secondary-button" data-route="login">Sign in</button>
-      </div>
-    `;
-    headerElement.querySelector('button[data-route]')?.addEventListener('click', () => {
-      window.location.hash = 'login';
-    });
-    return;
-  }
+// Initialize app
+const app = new App();
 
-  headerElement.innerHTML = `
-    <div class="user-chip">
-      <span>${sanitize(user.first_name || user.email || 'User')}</span>
-      <button id="logoutButton" class="link-button">Sign out</button>
-    </div>
-  `;
-  document.getElementById('logoutButton')?.addEventListener('click', async () => {
-    await logout();
-    buildNav(document.getElementById('nav'));
-    updateHeader(document.getElementById('headerActions'));
-    window.location.hash = 'login';
-    initRouter(document.getElementById('page'));
-  });
-}
+// Export for debugging
+window.app = app;
 
-window.addEventListener('DOMContentLoaded', () => {
-  protect();
-  const app = document.getElementById('app');
-  app.innerHTML = Layout();
-
-  const nav = document.getElementById('nav');
-  const headerActions = document.getElementById('headerActions');
-
-  buildNav(nav);
-  updateHeader(headerActions);
-
-  window.addEventListener('hashchange', () => {
-    buildNav(nav);
-    updateHeader(headerActions);
-    initRouter(document.getElementById('page'));
-  });
-
-  initRouter(document.getElementById('page'));
-});
+console.log('✨ Enterprise HRMS v3.0 ready');
+console.log('📖 Keyboard shortcuts:');
+console.log('  Alt+1-9: Navigate pages');
+console.log('  Ctrl+Shift+D: Toggle dark mode');
+console.log('  Ctrl+Shift+R: Refresh dashboard');
+console.log('  Ctrl+K: Focus search');
+console.log('  ESC: Close modals');

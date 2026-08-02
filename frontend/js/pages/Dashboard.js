@@ -45,8 +45,7 @@ DashboardPage.afterRender = async () => {
   const insightsList = document.getElementById('dashboardInsights');
 
   try {
-    const data = await apiRequest('/api/v1/dashboard/stats', { method: 'GET' });
-    const payload = data?.data || {};
+    const payload = await apiRequest('/api/v1/dashboard/stats', { method: 'GET' });
 
     document.getElementById('totalEmployees').textContent = payload.total_employees ?? '0';
     document.getElementById('todayAttendance').textContent = payload.today_attendance ?? '0';
@@ -55,9 +54,9 @@ DashboardPage.afterRender = async () => {
     statusLabel.textContent = 'Live HR insights are connected to your backend service.';
 
     const insights = [
-      `Current attendance rate: ${payload.attendance_rate ?? 'N/A'}%`,
-      `Open tasks: ${payload.pending_tasks ?? 'N/A'}`,
-      `Latest update: ${payload.updated_at ? new Date(payload.updated_at).toLocaleString() : 'Now'}`
+      `Attendance present: ${payload.attendance_chart?.present?.slice(-1)[0] ?? 'N/A'}`,
+      `Pending leaves: ${payload.pending_leaves ?? 'N/A'}`,
+      `Recent activity: ${payload.recent_activities?.[0]?.action ?? 'Available'}`
     ];
 
     insightsList.innerHTML = insights.map((item) => `<li>${item}</li>`).join('');

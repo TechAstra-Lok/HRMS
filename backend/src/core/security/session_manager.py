@@ -1,18 +1,17 @@
-"""Redis-backed session and token management."""
+"""In-memory session storage for local development."""
 
 import os
-import redis
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 
 class SessionManager:
-    """Manage Redis-backed user session metadata."""
+    """Manage lightweight user session metadata without Redis."""
 
     def __init__(self, redis_url: Optional[str] = None):
         self.redis_url = redis_url or os.getenv('REDIS_URL', 'redis://localhost:6379/0')
         self.timeout = int(os.getenv('SESSION_IDLE_TIMEOUT_SECONDS', '1800'))
-        self.redis = redis.Redis.from_url(self.redis_url, decode_responses=True)
+        self._sessions = {}
 
     def create_session(self, session_id: str, user_id: str, tenant_id: str, roles: list) -> None:
         payload = {
@@ -21,17 +20,12 @@ class SessionManager:
             'roles': ','.join(roles),
             'created_at': datetime.utcnow().isoformat(),
         }
-        self.redis.hset(f'session:{session_id}', mapping=payload)
-        self.redis.expire(f'session:{session_id}', self.timeout)
+        self._sessions[session_id] = payload
 
     def validate_session(self, session_id: str) -> Optional[dict]:
         if not session_id:
             return None
-        key = f'session:{session_id}'
-        if not self.redis.exists(key):
-            return None
-        self.redis.expire(key, self.timeout)
-        session_data = self.redis.hgetall(key)
+        session_data = self._sessions.get(session_id)
         if not session_data:
             return None
         return {
@@ -41,7 +35,7 @@ class SessionManager:
         }
 
     def revoke_session(self, session_id: str) -> None:
-        self.redis.delete(f'session:{session_id}')
+        self._sessions.pop(session_id, None)
 
 
 session_manager = SessionManager()

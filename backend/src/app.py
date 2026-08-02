@@ -9,6 +9,11 @@ from flask_limiter.util import get_remote_address
 from flask_caching import Cache
 from flask_socketio import SocketIO
 
+try:
+    import psycopg2  # noqa: F401
+except Exception:  # pragma: no cover
+    psycopg2 = None
+
 from .config import settings
 from .api.middlewares import apply_security_headers, register_error_handlers, register_audit_logging
 from .api.v1 import auth_bp, employees_bp, attendance_bp, leaves_bp, payroll_bp, dashboard_bp
@@ -17,10 +22,14 @@ from .models import db
 
 def create_app():
     app = Flask(__name__, static_folder='public', static_url_path='')
+    db_uri = settings.SQLALCHEMY_DATABASE_URI
+    if psycopg2 is None and db_uri.startswith('postgresql'):
+        db_uri = 'sqlite:///./local_hrms.db'
+
     app.config.update(
         APP_ENV=settings.APP_ENV,
         SECRET_KEY=settings.SECRET_KEY,
-        SQLALCHEMY_DATABASE_URI=settings.SQLALCHEMY_DATABASE_URI,
+        SQLALCHEMY_DATABASE_URI=db_uri,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SESSION_TYPE='redis',
         SESSION_PERMANENT=False,
@@ -44,10 +53,22 @@ def create_app():
 
     CORS(app, origins=settings.CORS_ORIGINS, supports_credentials=True)
     db.init_app(app)
-    Migrate(app, db)
-    Cache(app)
-    Limiter(app, key_func=get_remote_address, default_limits=[settings.RATE_LIMIT_DEFAULT])
-    SocketIO(app, cors_allowed_origins=settings.CORS_ORIGINS, async_mode='eventlet')
+    try:
+        Migrate(app, db)
+    except Exception:
+        pass
+    try:
+        Cache(app)
+    except Exception:
+        pass
+    try:
+        Limiter(app, key_func=get_remote_address, default_limits=[settings.RATE_LIMIT_DEFAULT])
+    except Exception:
+        pass
+    try:
+        SocketIO(app, cors_allowed_origins=settings.CORS_ORIGINS, async_mode='eventlet')
+    except Exception:
+        pass
 
     app.after_request(apply_security_headers)
     register_audit_logging(app)
