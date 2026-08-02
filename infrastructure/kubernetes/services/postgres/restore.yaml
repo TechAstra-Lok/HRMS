@@ -1,0 +1,43 @@
+﻿apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hrms-postgres-restore
+  namespace: hrms
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: restore
+          image: postgres:15-alpine
+          env:
+            - name: PGHOST
+              value: "hrms-postgres"
+            - name: PGPORT
+              value: "5432"
+            - name: PGUSER
+              value: "postgres"
+            - name: PGDATABASE
+              value: "hrms"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hrms-secrets
+                  key: POSTGRES_PASSWORD
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          command:
+            - sh
+            - -c
+            - |
+              latest=$(ls -1 /backups/*.sql | sort | tail -n1)
+              if [ -z "$latest" ]; then
+                echo "No backup file found in /backups"
+                exit 1
+              fi
+              pg_restore -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" --clean --if-exists "$latest"
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: hrms-postgres-backup-pvc

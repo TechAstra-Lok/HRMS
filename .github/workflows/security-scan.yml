@@ -1,0 +1,47 @@
+name: Security Scan
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1'
+  pull_request:
+
+jobs:
+  backend-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt bandit pip-audit safety yamllint
+      - name: Run Bandit
+        run: |
+          bandit -r backend/src -lll
+      - name: Run pip-audit
+        run: |
+          pip-audit
+      - name: Run Safety
+        run: |
+          safety check -r backend/requirements.txt --full-report
+      - name: Validate Kubernetes YAML
+        run: |
+          yamllint infrastructure/kubernetes
+
+  frontend-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: |
+          npm install
+          npm audit --audit-level=moderate

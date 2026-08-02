@@ -1,0 +1,12 @@
+﻿apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hrms-frontend-pdb
+  namespace: hrms
+  labels:
+    app: hrms-frontend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: hrms-frontend

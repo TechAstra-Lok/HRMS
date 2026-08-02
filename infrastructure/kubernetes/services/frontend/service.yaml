@@ -1,0 +1,15 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: hrms-frontend
+  namespace: hrms
+  labels:
+    app: hrms-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: hrms-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

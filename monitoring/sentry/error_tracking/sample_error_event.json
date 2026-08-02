@@ -1,0 +1,13 @@
+{
+  "event_id": "00000000000000000000000000000000",
+  "exception": {
+    "values": [
+      {
+        "type": "ValueError",
+        "value": "Sample HRMS error event for monitoring"
+      }
+    ]
+  },
+  "level": "error",
+  "logger": "hrms.backend"
+}

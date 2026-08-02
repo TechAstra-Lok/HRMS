@@ -1,0 +1,33 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hrms-celery-worker
+  namespace: hrms
+  labels:
+    app: hrms-celery-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hrms-celery-worker
+  template:
+    metadata:
+      labels:
+        app: hrms-celery-worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: 
+          command: [celery, -A, src.tasks, worker, --loglevel=info]
+          envFrom:
+            - configMapRef:
+                name: hrms-config
+            - secretRef:
+                name: hrms-secrets
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

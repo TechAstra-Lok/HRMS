@@ -1,0 +1,5 @@
+project:
+  name: hrms
+  platform: python
+  organization: hrms-org
+  team: engineering

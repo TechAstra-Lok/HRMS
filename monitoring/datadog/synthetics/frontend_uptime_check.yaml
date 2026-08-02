@@ -1,0 +1,11 @@
+type: browser
+name: hrms-frontend-uptime
+config:
+  request:
+    url: https://hrms.example.com
+    method: GET
+    timeout: 30
+  assertions:
+    - type: statusCode
+      operator: is
+      target: 200

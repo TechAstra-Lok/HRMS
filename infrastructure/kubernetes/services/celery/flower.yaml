@@ -1,0 +1,35 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hrms-celery-flower
+  namespace: hrms
+  labels:
+    app: hrms-celery-flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hrms-celery-flower
+  template:
+    metadata:
+      labels:
+        app: hrms-celery-flower
+    spec:
+      containers:
+        - name: celery-flower
+          image: 
+          command: [celery, -A, src.tasks, flower, --port=5555]
+          ports:
+            - containerPort: 5555
+          envFrom:
+            - configMapRef:
+                name: hrms-config
+            - secretRef:
+                name: hrms-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

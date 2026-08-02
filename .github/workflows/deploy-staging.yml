@@ -1,0 +1,32 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v5
+        with:
+          version: 'latest'
+      - name: Configure kubeconfig
+        env:
+          KUBECONFIG: ${{ runner.temp }}/kubeconfig
+        run: |
+          mkdir -p $(dirname $KUBECONFIG)
+          echo "${{ secrets.STAGING_KUBE_CONFIG_DATA }}" | base64 --decode > $KUBECONFIG
+      - name: Deploy staging manifests
+        run: |
+          kubectl apply -f infrastructure/kubernetes/base
+          kubectl apply -f infrastructure/kubernetes/services
+          kubectl rollout status deployment/hrms-backend --namespace hrms --timeout=3m
+          kubectl rollout status deployment/hrms-frontend --namespace hrms --timeout=3m
+          kubectl rollout status deployment/hrms-rabbitmq --namespace hrms --timeout=3m
+          kubectl rollout status deployment/hrms-redis --namespace hrms --timeout=3m
+          kubectl rollout status statefulset/hrms-postgres --namespace hrms --timeout=3m
+          kubectl rollout status statefulset/hrms-elasticsearch --namespace hrms --timeout=3m

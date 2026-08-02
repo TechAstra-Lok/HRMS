@@ -1,0 +1,11 @@
+groups:
+  - name: hrms.rules
+    rules:
+      - alert: HighBackendErrorRate
+        expr: increase(hrms_backend_error_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High backend error rate"
+          description: "Backend error rate increased above threshold."

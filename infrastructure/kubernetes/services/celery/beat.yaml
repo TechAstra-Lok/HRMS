@@ -1,0 +1,33 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hrms-celery-beat
+  namespace: hrms
+  labels:
+    app: hrms-celery-beat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hrms-celery-beat
+  template:
+    metadata:
+      labels:
+        app: hrms-celery-beat
+    spec:
+      containers:
+        - name: celery-beat
+          image: 
+          command: [ celery, -A, src.tasks, beat, --loglevel=info]
+          envFrom:
+            - configMapRef:
+                name: hrms-config
+            - secretRef:
+                name: hrms-secrets
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi

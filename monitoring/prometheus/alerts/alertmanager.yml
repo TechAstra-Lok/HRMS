@@ -1,0 +1,8 @@
+global:
+  resolve_timeout: 5m
+route:
+  receiver: 'team-notifications'
+receivers:
+  - name: 'team-notifications'
+    email_configs:
+      - to: 'security-team@example.com'

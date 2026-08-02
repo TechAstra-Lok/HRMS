@@ -1,0 +1,43 @@
+﻿apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hrms-postgres-backup
+  namespace: hrms
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: postgres:15-alpine
+              env:
+                - name: PGHOST
+                  value: "hrms-postgres"
+                - name: PGPORT
+                  value: "5432"
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGDATABASE
+                  value: "hrms"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: hrms-secrets
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backups
+              command:
+                - sh
+                - -c
+                - |
+                  mkdir -p /backups
+                  pg_dump -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE" > /backups/hrms_backup_$(date +"%F_%H-%M-%S").sql
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: hrms-postgres-backup-pvc

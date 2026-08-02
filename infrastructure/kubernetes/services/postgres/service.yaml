@@ -1,0 +1,15 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: hrms-postgres
+  namespace: hrms
+  labels:
+    app: hrms-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: hrms-postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432

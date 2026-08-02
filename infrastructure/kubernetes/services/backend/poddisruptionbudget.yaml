@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: hrms-backend-pdb
+  namespace: hrms
+  labels:
+    app: hrms-backend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: hrms-backend

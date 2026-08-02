@@ -1,0 +1,8 @@
+name: hrms-backend-latency
+type: metric alert
+query: "avg(last_5m):avg:hrms.backend.request.duration{*} > 500"
+message: "Backend latency is above 500ms."
+options:
+  notify_no_data: false
+  thresholds:
+    critical: 500

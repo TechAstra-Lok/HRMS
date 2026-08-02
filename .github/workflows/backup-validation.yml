@@ -1,0 +1,38 @@
+name: Backup Validation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-backups:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install YAML linter and kubectl
+        run: |
+          python -m pip install --upgrade pip
+          pip install yamllint
+      - name: Validate backup manifests
+        run: |
+          yamllint infrastructure/kubernetes/services/postgres/backup.yaml
+          yamllint infrastructure/kubernetes/services/postgres/restore.yaml
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v5
+        with:
+          version: 'latest'
+      - name: Dry-run backup manifests
+        run: |
+          kubectl apply --dry-run=client -f infrastructure/kubernetes/services/postgres/backup.yaml
+          kubectl apply --dry-run=client -f infrastructure/kubernetes/services/postgres/restore.yaml
+      - name: Validate restore workflow script
+        run: |
+          if [ -f backend/scripts/database/restore.py ]; then
+            echo "restore.py exists"
+          else
+            echo "Missing restore script"
+            exit 1
+          fi

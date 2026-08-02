@@ -1,0 +1,4 @@
+# API key template for local testing
+# Replace this with a securely generated key in production.
+# Format: hrms-api-<random-hex>
+hrms-api-0123456789abcdef0123456789abcdef
